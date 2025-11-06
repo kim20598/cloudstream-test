@@ -23,22 +23,29 @@ jobs:
       with:
         app_id: ${{ secrets.GH_APP_ID }}
         private_key: ${{ secrets.GH_APP_KEY }}
-        repository: "recloudstream/secrets"
+        repositories: |
+          recloudstream/secrets
+
     - name: Generate access token (archive)
       id: generate_archive_token
       uses: tibdex/github-app-token@v2
       with:
         app_id: ${{ secrets.GH_APP_ID }}
         private_key: ${{ secrets.GH_APP_KEY }}
-        repository: "recloudstream/cloudstream-archive"
+        repositories: |
+          recloudstream/cloudstream-archive
+
     - uses: actions/checkout@v4
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'adopt'
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
     - name: Fetch keystore
       id: fetch_keystore
       run: |
@@ -49,6 +56,7 @@ jobs:
         KEY_PWD="$(cat keystore_password.txt)"
         echo "::add-mask::${KEY_PWD}"
         echo "key_pwd=$KEY_PWD" >> $GITHUB_OUTPUT
+
     - name: Run Gradle
       run: |
         ./gradlew assemblePrerelease
@@ -58,6 +66,7 @@ jobs:
         SIGNING_STORE_PASSWORD: ${{ steps.fetch_keystore.outputs.key_pwd }}
         SIMKL_CLIENT_ID: ${{ secrets.SIMKL_CLIENT_ID }}
         SIMKL_CLIENT_SECRET: ${{ secrets.SIMKL_CLIENT_SECRET }}
+
     - uses: actions/checkout@v4
       with:
         repository: "recloudstream/cloudstream-archive"
